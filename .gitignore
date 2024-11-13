@@ -2,3 +2,6 @@
 dataset 
 Natural_language_processing_Assignment_1__Ngrams_and_Evaluation.pdf
 text_data.h5
+env
+GPAC_data.h5
+GPAC_data_with_metadata.h5
