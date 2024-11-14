@@ -1,4 +1,5 @@
 import argparse
+import random
 from read_hd5 import read_hd5
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -39,18 +40,34 @@ def print_bigram_condtional_probabilities(ngram_prob,n):
     print(f"{n}-grams:")
     for ngram, prob in ngram_prob.items():
         print(f'{ngram}:{prob:.6f}')
+
 def calculate_ngram_probabilities(ngram_dict):
     total_count = sum(ngram_dict.values())
     ngram_probabilities = {ngram: count / total_count for ngram, count in ngram_dict.items()}
     return ngram_probabilities
+def build_corpus_ngram_probabilities(tokens, n):
+    ngrams = generate_ngrams(tokens, n)
+    total_ngrams = sum(ngrams.values())  
+    # Calculate probabilities
+    ngram_probabilities = {ngram: count / total_ngrams for ngram, count in ngrams.items()}
+    return ngram_probabilities
+def calculate_sentence_probability(sentence_tokens, ngram_probabilities, n):
+    sentence_ngrams = generate_ngrams(sentence_tokens, n)
+    sentence_prob = 1.0
+    for ngram, count in sentence_ngrams.items():
+        if ngram in ngram_probabilities:
+            sentence_prob *= ngram_probabilities[ngram] ** count  # Multiply with probability for each occurrence of the ngram
+        else:
+            sentence_prob *= 0  # If n-gram not found in the probabilities, assume probability 0
 
+    return sentence_prob
 def find_top_ngrams_by_proability(ngram_probabilities, top_k=10):
     return sorted(ngram_probabilities.items(), key=lambda item: item[1], reverse=True)[:top_k]
 def find_top_ngrams_by_frequency(ngram_frequency, top_k=10):
     return sorted(ngram_frequency.items(), key=lambda item: item[1], reverse=True)[:top_k]
 # Function to create a word cloud
 def create_wordcloud(ngram_dict, title):
-    font_path="NotoSerifEthiopic-VariableFont_wdth,wght.ttf"
+    font_path="amharic_font.ttf"
     # Convert n-gram tuples to strings
     ngram_freq = {" ".join(k): v for k, v in ngram_dict.items()}
     # Generate the word cloud
@@ -100,6 +117,25 @@ def calculate_top_frequency_for_n(tokens,n,top_k=10):
         ngrams_dict=generate_ngrams(tokens,i)
         top_k_frequency=find_top_ngrams_by_frequency(ngrams_dict,top_k)
         print_ngram(top_k_frequency,i) 
+
+# Function to generate a random sentence based on n-grams
+def generate_random_sentence(ngram_probabilities, n, max_length=10):
+    # Choose a random starting n-gram
+    current_ngram = random.choice(list(ngram_probabilities.keys()))
+    sentence = list(current_ngram)
+    
+    while len(sentence) < max_length:
+        # Generate the next word based on the last n-1 words
+        possible_next_words = [ngram[-1] for ngram in ngram_probabilities.keys() if ngram[:-1] == tuple(sentence[-(n-1):])]
+        
+        if not possible_next_words:
+            break  # If no continuation is found, stop generating
+        
+        next_word = random.choice(possible_next_words)
+        sentence.append(next_word)
+    
+    return ' '.join(sentence)
+
 # question 1.1
 # calculate_n_grams(number_of_grams)
 # question 1.2
@@ -138,7 +174,7 @@ stop_words = {
     "ይችላል", "ያደርጋል", "ብቻ", "ዶን", "ይገባል", "አሁን"
 }
 stopword_removed_text = remove_stop_words(tokens,stop_words)
-tokens=stopword_removed_text.split()
+# tokens=stopword_removed_text.split()
 
 # print(stopword_removed_text)
 
@@ -147,6 +183,36 @@ tokens=stopword_removed_text.split()
 # Question 1.5 
 # before removing stopwords 
 # unigram_dic=generate_ngrams(tokens,1)
-bigram_dic=generate_ngrams(tokens,2)
-# trigram_dic=generate_ngrams(tokens,3)
-create_wordcloud(bigram_dic,"bigram")
+# bigram_dic=generate_ngrams(tokens,2)
+# # trigram_dic=generate_ngrams(tokens,3)
+# create_wordcloud(bigram_dic,"bigram")
+# Question 1.6
+# Define n for n-gram model
+# n = 3  # Bigram model
+
+# # Build the n-gram probabilities for the entire corpus
+# ngram_probabilities = build_corpus_ngram_probabilities(tokens, n)
+
+# # Example sentence to calculate its probability (also tokenized)
+# sentence = "ኢትዮጵያ ታሪካዊ ሀገር ናት"
+# tokenized_sentence=sentence.split()
+
+# # Calculate the probability of the sentence using n-gram probabilities from the corpus
+# sentence_probability = calculate_sentence_probability(tokenized_sentence, ngram_probabilities, n)
+# print(f"Probability of the sentence: {sentence_probability}")
+
+# Question 1.7
+# Generate unigrams, bigrams, and trigrams
+# unigram_probabilities = generate_ngrams(tokens, 1)
+# bigram_probabilities = generate_ngrams(tokens, 2)
+trigram_probabilities = generate_ngrams(tokens, 3)
+
+# Generate random sentences using unigrams, bigrams, and trigrams
+# print("Random sentence using Unigrams:")
+# print(generate_random_sentence(unigram_probabilities, 1))
+
+# print("\nRandom sentence using Bigrams:")
+# print(generate_random_sentence(bigram_probabilities, 1))
+
+print("\nRandom sentence using Trigrams:")
+print(generate_random_sentence(trigram_probabilities, 3))
