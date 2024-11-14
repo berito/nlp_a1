@@ -1,8 +1,8 @@
-import h5py
 import argparse
 from read_hd5 import read_hd5
 from collections import defaultdict
-from nltk import ngrams
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
  # Set up argument parsing to accept the number of characters as a command-line argument
 parser = argparse.ArgumentParser(description="Read text from an HDF5 file and display a specific number of characters.")
 parser.add_argument('--num_chars', type=int, default=500, help="Number of characters to display from the text.")
@@ -48,7 +48,20 @@ def find_top_ngrams_by_proability(ngram_probabilities, top_k=10):
     return sorted(ngram_probabilities.items(), key=lambda item: item[1], reverse=True)[:top_k]
 def find_top_ngrams_by_frequency(ngram_frequency, top_k=10):
     return sorted(ngram_frequency.items(), key=lambda item: item[1], reverse=True)[:top_k]
-
+# Function to create a word cloud
+def create_wordcloud(ngram_dict, title):
+    font_path="NotoSerifEthiopic-VariableFont_wdth,wght.ttf"
+    # Convert n-gram tuples to strings
+    ngram_freq = {" ".join(k): v for k, v in ngram_dict.items()}
+    # Generate the word cloud
+    wordcloud = WordCloud(width=800, height=400, background_color="white",font_path=font_path).generate_from_frequencies(ngram_freq)
+    
+    # Plot the word cloud
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.title(title, fontsize=20)
+    plt.show()
 # Function to calculate the conditional probabilities for bigrams
 def calculate_conditional_probabilities(ngram_dict):
     # Step 1: Calculate the frequency of the first word in each bigram
@@ -125,7 +138,15 @@ stop_words = {
     "ይችላል", "ያደርጋል", "ብቻ", "ዶን", "ይገባል", "አሁን"
 }
 stopword_removed_text = remove_stop_words(tokens,stop_words)
-# print(stopword_removed_text)
 tokens=stopword_removed_text.split()
-calculate_top_frequency_for_n(tokens,num_of_grams)
 
+# print(stopword_removed_text)
+
+# calculate_top_frequency_for_n(tokens,num_of_grams)
+
+# Question 1.5 
+# before removing stopwords 
+# unigram_dic=generate_ngrams(tokens,1)
+bigram_dic=generate_ngrams(tokens,2)
+# trigram_dic=generate_ngrams(tokens,3)
+create_wordcloud(bigram_dic,"bigram")

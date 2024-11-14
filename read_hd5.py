@@ -1,5 +1,4 @@
-import h5py
-import argparse    
+import h5py  
 def read_hd5(num_chars):       
     # Open the HDF5 file to read the text data and metadata
     with h5py.File('dataset/GPAC_data.h5', 'r') as hdf:
