@@ -1,6 +1,7 @@
 import h5py
 import argparse
 from read_hd5 import read_hd5
+from collections import defaultdict
 from nltk import ngrams
  # Set up argument parsing to accept the number of characters as a command-line argument
 parser = argparse.ArgumentParser(description="Read text from an HDF5 file and display a specific number of characters.")
@@ -13,18 +14,118 @@ print(f"\nFirst {args.num_chars} characters of the content:")
 print(f"Total number of characters in the text: {num_chars_in_text}")
 print(characters)  # Print the specified number of characters
 
-
 # Tokenize the text into words
 tokens = characters.split()
 
-# Function to generate n-grams
 def generate_ngrams(tokens, n):
-    return list(ngrams(tokens, n))
+    ngram_dict = defaultdict(int)
+    for i in range(len(tokens) - n + 1):
+        ngram = tuple(tokens[i:i + n])
+        ngram_dict[ngram] += 1
+    return dict(ngram_dict)
 
-# Generate and print n-grams for n=1, 2, 3, 4
-for n in range(1, 5):
+
+def print_ngram(ngram_dict,n):
     print(f"{n}-grams:")
-    ngram_list = generate_ngrams(tokens, n)
-    for ngram in ngram_list:
-        print(ngram)
-    print()
+    for ngram, count in ngram_dict:
+        print(f'{ngram}:{count}')    
+    print() 
+def print_ngram_probability(ngram_prob,n,format):
+    print(f"{n}-grams:")
+    for ngram, prob in ngram_prob:
+            print(f'{ngram}:{prob:.6f}')
+
+def print_bigram_condtional_probabilities(ngram_prob,n):
+    print(f"{n}-grams:")
+    for ngram, prob in ngram_prob.items():
+        print(f'{ngram}:{prob:.6f}')
+def calculate_ngram_probabilities(ngram_dict):
+    total_count = sum(ngram_dict.values())
+    ngram_probabilities = {ngram: count / total_count for ngram, count in ngram_dict.items()}
+    return ngram_probabilities
+
+def find_top_ngrams_by_proability(ngram_probabilities, top_k=10):
+    return sorted(ngram_probabilities.items(), key=lambda item: item[1], reverse=True)[:top_k]
+def find_top_ngrams_by_frequency(ngram_frequency, top_k=10):
+    return sorted(ngram_frequency.items(), key=lambda item: item[1], reverse=True)[:top_k]
+
+# Function to calculate the conditional probabilities for bigrams
+def calculate_conditional_probabilities(ngram_dict):
+    # Step 1: Calculate the frequency of the first word in each bigram
+    word_count = defaultdict(int)
+    # Count the occurrences of each word as the first word of a bigram
+    for bigram, count in ngram_dict.items():
+        first_word = bigram[0]
+        word_count[first_word] += count
+    
+    # Step 2: Calculate the conditional probabilities
+    conditional_probabilities = {}
+    for bigram, bigram_count in ngram_dict.items():
+        first_word = bigram[0]
+        # Conditional probability P(w2 | w1) = Count(w1, w2) / Count(w1)
+        conditional_prob = bigram_count / word_count[first_word]
+        conditional_probabilities[bigram] = conditional_prob
+    
+    return conditional_probabilities
+# create ngrams 1,2,3,4....
+def remove_stop_words(words,stop_words):
+    filtered_words = [word for word in words if word not in stop_words]
+    return ' '.join(filtered_words)
+def calculate_n_grams(n): 
+ for i in range(1,n+1) : 
+    ngrams=generate_ngrams(tokens,i)
+    print_ngram(ngrams,i)
+# calculates top k probabilitise for n=1,2,3,4....
+def calculate_top_probabilties_for_n(tokens,n,top_k=10):
+    for i in range(1,n+1) : 
+        ngrams_dict=generate_ngrams(tokens,i)
+        ngram_probabilities=calculate_ngram_probabilities(ngrams_dict)
+        top_k_probabilites=find_top_ngrams_by_proability(ngram_probabilities)
+        print_ngram(top_k_probabilites,i)
+def calculate_top_frequency_for_n(tokens,n,top_k=10):
+    for i in range(1,n+1) : 
+        ngrams_dict=generate_ngrams(tokens,i)
+        top_k_frequency=find_top_ngrams_by_frequency(ngrams_dict,top_k)
+        print_ngram(top_k_frequency,i) 
+# question 1.1
+# calculate_n_grams(number_of_grams)
+# question 1.2
+# calculate_top_probabilties_for_n(number_of_grams)
+# question 1.3
+# bi_grams=2
+# bi_gram_dic=generate_ngrams(tokens,bi_grams)
+# condtional_probabilities=calculate_conditional_probabilities(bi_gram_dic)
+# pring_bigram_condtional_probabilities(condtional_probabilities,bi_grams)
+# question 1.4
+num_of_grams=2
+stop_words = {
+    "እኔ", "የእኔ", "እኔ ራሴ", "እኛ", "የእኛ", "የእኛ", 
+    "እኛ ራሳችን", "አንቺ", "ያንተ", "ራስህን", "እራሳችሁ", 
+    "እሱ", "የእሱ", "ራሱ", "እሷ", "የእሷ", "እራሷ", 
+    "እነሱ", "እነሱን", "የእነሱ", "ራሳቸው", "ምንድን", 
+    "የትኛው", "የአለም ጤና ድርጅት", "ማን", "ይህ", 
+    "የሚል ነው", "እነዚህ", "እነዚያ", "ነኝ", "ነው", 
+    "ናቸው", "ነበር", "ነበሩ", "ሁን", "ቆይቷል", 
+    "መሆን", "አላቸው", "አለው", "ነበረው", "ያለው", 
+    "መ ስ ራ ት", "ያደርጋል", "አደረገ", "ማድረግ", 
+    "አንድ", "የ", "እና", "ግን", "ከሆነ", "ወይም", 
+    "ምክንያቱም", "እንደ", "እስከ", "እያለ", "የ", 
+    "ለ", "ጋር", "ስለ", "ላይ", "መካከል", "ወደ", 
+    "በኩል", "ወቅት", "ከዚህ በፊት", "በኋላ", 
+    "ከላይ", "ከታች", "ወደከ", "ወደ ላይ", "ታች", 
+    "ውስጥ", "ውጭ", "ላይ", "ጠፍቷል", "በላይ", 
+    "በታች", "እንደገና", "ተጨማሪ", "ከዚያ", 
+    "አንድ ጊዜ", "እዚህ", "እዚያ", "መቼ", "የት", 
+    "እንዴት", "እንዴት", "ሁሉም", "ማንኛውም", 
+    "ሁለቱም", "እያንዳንዳቸው", "ጥቂቶች", "ተጨማሪ", 
+    "በጣም", "ሌላ", "አንዳንድ", "እንደዚህ", 
+    "አይ", "ወይም አይደለም", "አይደለም", "ብቻ", 
+    "የራሱ", "ተመሳሳይ", "ስለዚህ", "ይልቅ", 
+    "እንዲሁ", "በጣም", "እ.ኤ.አ.", "ት", 
+    "ይችላል", "ያደርጋል", "ብቻ", "ዶን", "ይገባል", "አሁን"
+}
+stopword_removed_text = remove_stop_words(tokens,stop_words)
+# print(stopword_removed_text)
+tokens=stopword_removed_text.split()
+calculate_top_frequency_for_n(tokens,num_of_grams)
+
