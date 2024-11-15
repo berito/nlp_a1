@@ -1,22 +1,25 @@
 import argparse
 import random
-from read_hd5 import read_hd5
+from read_hd5 import read_hd5,get_text_by_words
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
  # Set up argument parsing to accept the number of characters as a command-line argument
 parser = argparse.ArgumentParser(description="Read text from an HDF5 file and display a specific number of characters.")
-parser.add_argument('--num_chars', type=int, default=500, help="Number of characters to display from the text.")
+# parser.add_argument('--num_chars', type=int, default=500, help="Number of characters to display from the text.")
+parser.add_argument('--num_words', type=int, default=500, help="Number of characters to display from the text.")
+
 args = parser.parse_args()
-characters,num_chars_in_text=read_hd5(args.num_chars)
+# corpus,num_chars_in_text=read_hd5(args.num_chars)
+corpus,num_of_words=get_text_by_words(args.num_words)
 # Print the specified number of characters (from the argument)
-print(f"\nFirst {args.num_chars} characters of the content:")
+# print(f"\nFirst {args.num_chars} characters of the content:")
 # Print the metadata (total number of characters in the text)
-print(f"Total number of characters in the text: {num_chars_in_text}")
-print(characters)  # Print the specified number of characters
+print(f"Total number of words in the text: {num_of_words}")
+print(corpus)  # Print the specified number of characters
 
 # Tokenize the text into words
-tokens = characters.split()
+tokens = corpus.split()
 
 def generate_ngrams(tokens, n):
     ngram_dict = defaultdict(int)
@@ -40,7 +43,8 @@ def print_bigram_condtional_probabilities(ngram_prob,n):
     print(f"{n}-grams:")
     for ngram, prob in ngram_prob.items():
         print(f'{ngram}:{prob:.6f}')
-
+# the two functions below have same functionality
+# one accets the ngram_dict from outside and the other accepts the token
 def calculate_ngram_probabilities(ngram_dict):
     total_count = sum(ngram_dict.values())
     ngram_probabilities = {ngram: count / total_count for ngram, count in ngram_dict.items()}
@@ -51,6 +55,7 @@ def build_corpus_ngram_probabilities(tokens, n):
     # Calculate probabilities
     ngram_probabilities = {ngram: count / total_ngrams for ngram, count in ngrams.items()}
     return ngram_probabilities
+
 def calculate_sentence_probability(sentence_tokens, ngram_probabilities, n):
     sentence_ngrams = generate_ngrams(sentence_tokens, n)
     sentence_prob = 1.0
@@ -117,6 +122,22 @@ def calculate_top_frequency_for_n(tokens,n,top_k=10):
         ngrams_dict=generate_ngrams(tokens,i)
         top_k_frequency=find_top_ngrams_by_frequency(ngrams_dict,top_k)
         print_ngram(top_k_frequency,i) 
+def split_train_test_data(tokens,chunk_size):
+    # corpus_length = len(corpus)
+    # Create chunks
+    # Step 3: Split the words into chunks of a fixed number of words (e.g., 3 words per chunk)
+    chunks = [tokens[i:i + chunk_size] for i in range(0, len(tokens), chunk_size)]
+        
+    #  Shuffle the chunks to ensure randomness
+    random.shuffle(chunks)
+    # Split 80% training, 20% testing
+    train_size = int(0.8 * len(chunks))  # 80% for training
+    train_set = chunks[:train_size]
+    test_set = chunks[train_size:]
+    # Join chunks back into strings (if needed)
+    train_data = ''.join(train_set)
+    test_data = ''.join(test_set)
+    return train_data,test_data
 
 # Function to generate a random sentence based on n-grams
 def generate_random_sentence(ngram_probabilities, n, max_length=10):
@@ -205,7 +226,8 @@ stopword_removed_text = remove_stop_words(tokens,stop_words)
 # Generate unigrams, bigrams, and trigrams
 # unigram_probabilities = generate_ngrams(tokens, 1)
 # bigram_probabilities = generate_ngrams(tokens, 2)
-trigram_probabilities = generate_ngrams(tokens, 3)
+# trigram_probabilities = generate_ngrams(tokens, 3)
+gram_4_probabilities=generate_ngrams(tokens, 4)
 
 # Generate random sentences using unigrams, bigrams, and trigrams
 # print("Random sentence using Unigrams:")
@@ -214,5 +236,8 @@ trigram_probabilities = generate_ngrams(tokens, 3)
 # print("\nRandom sentence using Bigrams:")
 # print(generate_random_sentence(bigram_probabilities, 1))
 
-print("\nRandom sentence using Trigrams:")
-print(generate_random_sentence(trigram_probabilities, 3))
+# print("\nRandom sentence using 4-gram:")
+# print(generate_random_sentence(gram_4_probabilities, 1))
+# train_data,test_data=split_train_test_data(tokens,10)
+# print("======train data====\n",train_data)
+# print("=======test data=======\n",test_data)
