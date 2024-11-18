@@ -66,6 +66,7 @@ def calculate_sentence_probability(sentence_tokens, ngram_probabilities, n):
             sentence_prob *= 0  # If n-gram not found in the probabilities, assume probability 0
 
     return sentence_prob
+
 def find_top_ngrams_by_proability(ngram_probabilities, top_k=10):
     return sorted(ngram_probabilities.items(), key=lambda item: item[1], reverse=True)[:top_k]
 def find_top_ngrams_by_frequency(ngram_frequency, top_k=10):
