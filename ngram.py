@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import List, Tuple, Dict
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import random
 
 class NGram:
     tokens: List[str]
@@ -84,3 +85,17 @@ class NGram:
         plt.title(title, fontsize=20)
         plt.savefig(f'figures/{title}.png')
         plt.show()
+    def generate_random_sentence(self,max_length=10):
+        # Choose a random starting n-gram
+        self._calculate_probabilities()
+        current_ngram = random.choice(list(self._ngram_probabilities.keys()))
+        print(current_ngram)
+        sentence = list(current_ngram)
+        while len(sentence) < max_length:
+            # Generate the next word based on the last n-1 words
+            possible_next_words = [ngram[-1] for ngram in self._ngram_probabilities.keys() if ngram[:-1] == tuple(sentence[-(self.n-1):])]  
+            if not possible_next_words:
+                break  # If no continuation is found, stop generating
+            next_word = random.choice(possible_next_words)
+            sentence.append(next_word)
+        return ' '.join(sentence)

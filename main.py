@@ -1,6 +1,8 @@
+from nltk.translate.bleu_score import sentence_bleu
 from tokenizer import Tokenizer
 from corpus_spliter import CorpusSplitter
 from ngram import NGram
+from ngram_model import NgramModel
 from utils import hdf5_data_loader,stop_word_reader,calculate_sentence_probability
 import argparse
 def test_punctuation_and_load_data():
@@ -42,6 +44,7 @@ def compare_ngrams_wordcount():
     print(len(tokens))
     create_n_gram(n,tokens,"4-gram")
     # stop_word_reader_test()
+
 def create_n_gram(n,tokens,title):
     # Create an NGram instance
     NGram.tokens=tokens
@@ -62,6 +65,15 @@ def create_n_gram(n,tokens,title):
     # top_ngrams = ngram.top_frequencies(40)
     # for ngram_tuple, freq in top_ngrams:
     #     print(f"{' '.join(ngram_tuple)}: {freq}")
+
+def sentence_generator():
+    NGram.tokens=tokens
+    gram=NGram(4)
+    gram.generate()
+    rand_sentence=gram.generate_random_sentence(4)
+    print(rand_sentence)    
+
+    
 def corpus_splitter_test():
      # print(len(tokens))
     corpus_splitter = CorpusSplitter(corpus, split_ratio=0.8, random_seed=42)
@@ -98,4 +110,32 @@ if __name__ == "__main__":
     # len_after=len(tokens)
     # print('after stop word removed',len_after)
     # print("difference ",len_before-len_after)
+    corpus_splitter = CorpusSplitter(corpus,stopwords=stop_words, split_ratio=0.8, random_seed=42)
+    # # Split the corpus into training and testing sets
+    train_set, test_set = corpus_splitter.split()
+    # corpus_splitter = CorpusSplitter(corpus, split_ratio=0.8, random_seed=42)
+    # train_set, test_set = corpus_splitter.split()
+    # print("==================training set================= ",len(train_set))
+    # print(len(train_set))
+    # print("==================test set================= ",len(test_set))
+    # print(test_set)
+
+    model=NgramModel(n=4,alpha=1)
+    model.train(train_set)
+    # # perplexity = model.perplexity(test_set)
+    # # print(f"Perplexity: {perplexity:.2f}")
     
+    # # Reference text from corpus
+    reference = ["ፊቱ" "ምንም" "ድካምም" "ሆነ" "መሰልቸት" "አይታይበትም"]
+    # # Train the model
+  
+  
+
+    # Generate text
+    generated_text = model.generate(max_words=20)
+    print("Generated Text:", generated_text)
+    candidate = generated_text.split()
+
+    # Compute BLEU score
+    bleu_score = sentence_bleu(reference, candidate)
+    print(f"BLEU Score: {bleu_score}")
