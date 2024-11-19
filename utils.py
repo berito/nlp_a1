@@ -53,4 +53,4 @@ def hdf5_data_loader(chunk_size, start_index=0):
             chunk_data_decoded.extend([sentence.decode('utf-8') for sentence in chunk[:chunk_size]])
 
         # Return the decoded chunk data and the new end index
-        return chunk_data_decoded, end_index
+        return total_chunks,chunk_data_decoded, end_index

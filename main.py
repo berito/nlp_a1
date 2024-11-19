@@ -54,7 +54,10 @@ if __name__ == "__main__":
     parser.add_argument('--chunk_size', type=int, default=500, help="Number of words or sentence from the text.")
     args = parser.parse_args()
     chunk_size = args.chunk_size
-    corpus,next=hdf5_data_loader(chunk_size)
+    total_chunks,corpus,next=hdf5_data_loader(chunk_size)
+    print(f'total chunk size',total_chunks)
+    print(f'total number of sentence (total_chunks*10(sentence per chunk)',total_chunks*10)
+    print(f'Retrived number of sentence )',chunk_size*10)
     stop_words_file_path = 'stopwords_am.txt'
     stop_words = stop_word_reader(stop_words_file_path)
     tokenizer = Tokenizer(corpus) 
@@ -68,13 +71,13 @@ if __name__ == "__main__":
     # print("difference ",len_before-len_after)
     
     # print(tokens)
-    n=3
+    n=4
     # before
     print(len(tokens))
-    create_n_gram(n,tokens,"bigram")
+    create_n_gram(n,tokens,"4-gram")
     # after
     tokens = tokenizer.tokenize(remove_punctuation=True,stop_words=stop_words)
     print(len(tokens))
-    create_n_gram(n,tokens,"bigram")
+    create_n_gram(n,tokens,"4-gram")
     # stop_word_reader_test()
    

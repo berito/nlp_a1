@@ -88,4 +88,5 @@ class NGram:
         plt.imshow(wordcloud, interpolation="bilinear")
         plt.axis("off")
         plt.title(title, fontsize=20)
+        plt.savefig(f'figures/{title}.png')
         plt.show()
