@@ -54,3 +54,14 @@ def hdf5_data_loader(chunk_size, start_index=0):
 
         # Return the decoded chunk data and the new end index
         return total_chunks,chunk_data_decoded, end_index
+def calculate_sentence_probability(sentence_ngrams,ngrams):
+        sentence_prob = 1.0
+        for ngram, count in sentence_ngrams.get_ngrams().items():
+            print(ngram)
+            if ngram in ngrams.probabilities():
+              
+                print(ngrams.probabilities())
+                sentence_prob *= ngrams.probabilities().get(ngram) ** count  # Multiply with probability for each occurrence of the ngram
+            else:
+                sentence_prob *= 0  # If n-gram not found in the probabilities, assume probability 0
+        return sentence_prob

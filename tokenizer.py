@@ -15,5 +15,6 @@ class Tokenizer:
         tokens = text_to_tokenize.split()
         if stop_words:
             tokens = self._remove_stop_words(tokens, stop_words)
+       
         return tokens
 

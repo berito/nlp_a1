@@ -4,23 +4,21 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 class NGram:
-    def __init__(self, tokens: List[str]):
-        """
-        Initialize the NGram class with a list of tokens.
-        :param tokens: List of words (tokens) from input text.
-        """
-        self._tokens = tokens
+    tokens: List[str]
+    def __init__(self,n:int):
+        self.n=n
         self._ngram_dict = None
         self._ngram_probabilities = None
 
-    def generate(self, n: int) -> None:
+    def generate(self) -> None:
         ngram_dict = defaultdict(int)
-        for i in range(len(self._tokens) - n + 1):
-            ngram = tuple(self._tokens[i:i + n])
+        for i in range(len(NGram.tokens) - self.n + 1):
+            ngram = tuple(NGram.tokens[i:i + self.n])
             ngram_dict[ngram] += 1
         self._ngram_dict = dict(ngram_dict)
         self._ngram_probabilities = None  # Invalidate probabilities if n-grams change
-
+    def get_ngrams(self):
+        return self._ngram_dict
     def _calculate_probabilities(self) -> None:
         if self._ngram_dict is None:
             raise ValueError("N-grams have not been generated. Call `generate()` first.")
@@ -30,10 +28,6 @@ class NGram:
         }
     
     def probabilities(self) -> Dict[Tuple[str, ...], float]:
-        """
-        Get probabilities for the generated n-grams.
-        :return: Dictionary of n-grams and their probabilities.
-        """
         if self._ngram_probabilities is None:
             self._calculate_probabilities()
         return self._ngram_probabilities
