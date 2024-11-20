@@ -232,7 +232,7 @@ gram_4_probabilities=generate_ngrams(tokens, 4)
 
 # Generate random sentences using unigrams, bigrams, and trigrams
 # print("Random sentence using Unigrams:")
-# print(generate_random_sentence(unigram_probabilities, 1))
+print(generate_random_sentence(unigram_probabilities, 1))
 
 # print("\nRandom sentence using Bigrams:")
 # print(generate_random_sentence(bigram_probabilities, 1))

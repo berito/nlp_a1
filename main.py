@@ -33,7 +33,7 @@ def sentence_probability():
     probability=calculate_sentence_probability(sentence_gram_4,gram_4)
     print(f'probability of {sentence} is {probability:.7f}')
     
-    
+   
 def compare_ngrams_wordcount():
     n=4
     # before
@@ -73,7 +73,6 @@ def sentence_generator():
     rand_sentence=gram.generate_random_sentence(4)
     print(rand_sentence)    
 
-    
 def corpus_splitter_test():
      # print(len(tokens))
     corpus_splitter = CorpusSplitter(corpus, split_ratio=0.8, random_seed=42)
@@ -90,6 +89,7 @@ def stop_word_reader_test():
     file_path='stopwords_am.txt'
     stop_words=stop_word_reader(file_path)
     print(stop_words)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Read text from an HDF5 file and display a specific number of characters.")
     parser.add_argument('--chunk_size', type=int, default=500, help="Number of words or sentence from the text.")

@@ -18,8 +18,10 @@ class NGram:
             ngram_dict[ngram] += 1
         self._ngram_dict = dict(ngram_dict)
         self._ngram_probabilities = None  # Invalidate probabilities if n-grams change
+    
     def get_ngrams(self):
         return self._ngram_dict
+    
     def _calculate_probabilities(self) -> None:
         if self._ngram_dict is None:
             raise ValueError("N-grams have not been generated. Call `generate()` first.")
@@ -85,6 +87,7 @@ class NGram:
         plt.title(title, fontsize=20)
         plt.savefig(f'figures/{title}.png')
         plt.show()
+    
     def generate_random_sentence(self,max_length=10):
         # Choose a random starting n-gram
         self._calculate_probabilities()
